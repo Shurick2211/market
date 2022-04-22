@@ -2,20 +2,17 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-
 public class Main {
-    public static void main(String [] args)  {
+    public static void main(String [] args) throws IOException {
         Set<Update> updatesBid=new HashSet<>();
         Set<Update> updatesAsk=new HashSet<>();
 
-        try {
-            BufferedReader  fileReader =new BufferedReader(new FileReader("input.txt"));
+
+            BufferedReader fileReader =new BufferedReader(new FileReader("input.txt"));
             FileWriter writer = new FileWriter("output.txt", false);
 
             String str;
@@ -61,8 +58,8 @@ public class Main {
                         break;
                     }
                     case "o":{
-
                         long size=Long.parseLong(line[2]);
+
                         if(line[1].equals("sell")){
                           order(updatesBid,"sell",size);
                         }
@@ -76,25 +73,26 @@ public class Main {
             }
             writer.flush();
 
-        } catch (IOException e) {
-            System.out.println("Error input/output");
-        }
+
 
     }
 
     private static void order(Set<Update> upds, String name, long size){
         do {
-            Update update=new Update();
-            if(name.equals("buy")) update = upds.stream().min(Update::compare).get();
-            if(name.equals("sell")) update = upds.stream().max(Update::compare).get();
+            Update update;
+            if(name.equals("buy")) update = upds.stream().filter(u -> u.getSize()>0)
+                .min(Update::compare).get();
+            else update = upds.stream().filter(u -> u.getSize()>0)
+                .max(Update::compare).get();
+
             if ((size = update.getSize() - size) >= 0) {
-                upds.remove(update);
                 update.setSize(size);
-                upds.add(update);
                 size = 0;
             } else {
-                upds.remove(update);
-                size =- size;}
+                update.setSize(0);
+                size = Math.abs(size);
+
+            }
         }while(size > 0);
     }
 

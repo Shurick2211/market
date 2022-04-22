@@ -5,7 +5,7 @@ u,11,5,ask
 q,best_bid
 u,10,2,bid
 q,best_bid
-o,sell,1
+o,sell,3
 q,size,10
 u,9,1,bid
 u,11,1,ask
