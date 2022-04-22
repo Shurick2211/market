@@ -35,13 +35,15 @@ public class Main {
                         String text;
                         switch (line[1]){
                             case "best_bid":{
-                                text = updatesBid.stream().max(Update::compare).get().toString();
+                                text = updatesBid.stream().filter(u -> u.getSize()>0)
+                                    .max(Update::compare).get().toString();
                                 if (!first) writer.append("\n");
                                 writer.write(text);
                                 break;
                             }
                             case "best_ask":{
-                                text = updatesAsk.stream().min(Update::compare).get().toString();
+                                text = updatesAsk.stream().filter(u -> u.getSize()>0)
+                                    .min(Update::compare).get().toString();
                                 if (!first) writer.append("\n");
                                 writer.write(text);
                                 break;
