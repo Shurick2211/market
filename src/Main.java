@@ -3,13 +3,16 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 
 public class Main {
     public static void main(String [] args)  {
-        List<Update> updatesBid=new ArrayList<>();
-        List<Update> updatesAsk=new ArrayList<>();
+        Set<Update> updatesBid=new HashSet<>();
+        Set<Update> updatesAsk=new HashSet<>();
 
         try {
             BufferedReader  fileReader =new BufferedReader(new FileReader("input.txt"));
@@ -30,7 +33,7 @@ public class Main {
                         }
                         break;
                     }
-                    /*
+
                     case "q":{
                         String text;
                         switch (line[1]){
@@ -56,7 +59,7 @@ public class Main {
                         }
                         first = false;
                         break;
-                    }*/
+                    }
                     case "o":{
 
                         long size=Long.parseLong(line[2]);
@@ -79,7 +82,7 @@ public class Main {
 
     }
 
-    private static void order(List<Update> upds, String name, long size){
+    private static void order(Set<Update> upds, String name, long size){
         do {
             Update update=new Update();
             if(name.equals("buy")) update = upds.stream().min(Update::compare).get();
@@ -95,22 +98,15 @@ public class Main {
         }while(size > 0);
     }
 
-    private static void upd(List<Update> upds, long price, long size) {
-        if (!upds.isEmpty())
-            for (Update u:upds) {
-                if (u.getPrice() == price) {
-                    System.out.println(u);
-                   // u.setSize(u.getSize() + size);
-                } else {
-                    Update update = new Update(price, size);
-                    upds.add(update);
-                    System.out.println(update+"*");
-                }
-            }
-        else {
-            Update update = new Update(price, size);
+    private static void upd(Set<Update> upds, long price, long size) {
+        if (!upds.isEmpty()) {
+         Update update = upds.stream().dropWhile(u->u.getPrice() != price)
+             .findFirst().orElse(new Update(price,0));
+            update.setSize(update.getSize()+size);
             upds.add(update);
-            System.out.println(update);
+        }
+        else {
+            upds.add(new Update(price, size));
         }
     }
 }
