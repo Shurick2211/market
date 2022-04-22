@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Main {
@@ -49,8 +50,9 @@ public class Main {
                                 break;
                             }
                             case "size":{
-                                text = Stream.concat(updatesBid.stream(),updatesAsk.stream()).
-                                        filter(u->u.getPrice()==Long.parseLong(line[2])).toArray().length + "";
+                                text = Stream.concat(updatesBid.stream(), updatesAsk.stream())
+                                    .filter(u -> u.getPrice() == Long.parseLong(line[2]))
+                                    .mapToLong(Update::getSize).sum() + "";
                                 if (!first) writer.append("\n");
                                 writer.write(text);
                                 break;
