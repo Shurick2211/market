@@ -3,11 +3,15 @@ u,8,2,bid
 u,7,3,bid
 u,11,5,ask
 u,12,5,ask
+u,9,3,ask
+o,buy,13
+q,best_ask
 q,best_bid
-u,10,2,bid
+u,9,2,bid
 q,best_bid
-o,sell,4
+o,sell,2
 q,size,10
 u,13,1,ask
+u,8,1,bid
 q,best_bid
 q,best_ask

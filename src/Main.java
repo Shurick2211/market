@@ -4,7 +4,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Main {
@@ -25,9 +24,11 @@ public class Main {
                         long price = Long.parseLong(line[1]);
                         long size = Long.parseLong(line[2]);
                         if(line[3].equals("bid")) {
-                           upd(updatesBid,price,size);
+                             upd(updatesBid,price,size);
+                             limitOrder(updatesAsk,updatesBid,"bid", price, size);
                         } else  {
-                           upd(updatesAsk,price,size);
+                             upd(updatesAsk,price,size);
+                             limitOrder(updatesBid,updatesAsk,"ask", price,size);
                         }
                         break;
                     }
@@ -36,15 +37,13 @@ public class Main {
                         String text;
                         switch (line[1]){
                             case "best_bid":{
-                                text = updatesBid.stream().filter(u -> u.getSize()>0)
-                                    .max(Update::compare).get().toString();
+                                text = maximum(updatesBid).toString();
                                 if (!first) writer.append("\n");
                                 writer.write(text);
                                 break;
                             }
                             case "best_ask":{
-                                text = updatesAsk.stream().filter(u -> u.getSize()>0)
-                                    .min(Update::compare).get().toString();
+                                text = minimum(updatesAsk).toString();
                                 if (!first) writer.append("\n");
                                 writer.write(text);
                                 break;
@@ -62,13 +61,27 @@ public class Main {
                         break;
                     }
                     case "o":{
+
                         long size=Long.parseLong(line[2]);
 
                         if(line[1].equals("sell")){
-                          order(updatesBid,"sell",size);
+                            long sum = updatesBid.stream().mapToLong(Update::getSize).sum();
+                            if(size <= sum){
+                                order(updatesBid,"sell",size);
+                            } else {
+                                upd(updatesAsk,minimum(updatesBid).getPrice(),size-sum);
+                                order(updatesBid,"sell",sum);
+                            }
+
                         }
                         if(line[1].equals("buy")){
-                          order(updatesAsk,"buy",size);
+                            long sum = updatesAsk.stream().mapToLong(Update::getSize).sum();
+                            if(size <= sum){
+                                 order(updatesAsk,"buy",size);
+                            } else {
+                                upd(updatesBid,maximum(updatesAsk).getPrice(),size-sum);
+                                order(updatesAsk,"buy",sum);
+                            }
                         }
 
                         break;
@@ -84,10 +97,8 @@ public class Main {
     private static void order(Set<Update> upds, String name, long size){
         do {
             Update update;
-            if(name.equals("buy")) update = upds.stream().filter(u -> u.getSize()>0)
-                .min(Update::compare).get();
-            else update = upds.stream().filter(u -> u.getSize()>0)
-                .max(Update::compare).get();
+            if(name.equals("buy")) update = minimum(upds);
+            else update = maximum(upds);
 
             if ((size = update.getSize() - size) >= 0) {
                 update.setSize(size);
@@ -95,20 +106,65 @@ public class Main {
             } else {
                 update.setSize(0);
                 size = Math.abs(size);
-
             }
         }while(size > 0);
     }
 
     private static void upd(Set<Update> upds, long price, long size) {
         if (!upds.isEmpty()) {
-         Update update = upds.stream().dropWhile(u->u.getPrice() != price)
-             .findFirst().orElse(new Update(price,0));
+         Update update = upds.stream().dropWhile(u->u.getPrice() != price).findAny()
+             .orElse(new Update(price,0));
             update.setSize(update.getSize()+size);
             upds.add(update);
         }
         else {
             upds.add(new Update(price, size));
         }
+    }
+
+    private static void limitOrder(Set<Update> upds, Set<Update> other,String updName, long price, long size) {
+        if ((!upds.isEmpty()) && upds.stream().mapToLong(Update::getSize).sum() > 0) {
+            if (updName.equals("bid")) {
+                Update update = minimum(upds);
+                if (price >= update.getPrice()) {
+                    if (update.getSize() >= size) {
+                        spred(upds, other, size, false);
+                    } else {
+                        spred(upds, other, update.getSize(), false);
+                        upd(other, price, update.getSize());
+                    }
+                }
+            } else {
+                Update update = maximum(upds);
+                if (price <= update.getPrice()) {
+                    if (update.getSize() >= size) {
+                        spred(upds, other, size, true);
+                    } else {
+                        spred(upds, other, update.getSize(), true);
+                        upd(other,price,update.getSize());
+                    }
+                }
+            }
+        }
+    }
+
+    private static void spred(Set<Update> upds, Set<Update> other, long size, boolean revers) {
+        if (revers) {
+            order(other, "buy", size);
+            order(upds, "sell", size);
+        } else  {
+            order(other, "sell", size);
+            order(upds, "buy", size);
+        }
+
+    }
+
+    private static Update minimum(Set<Update> upds) {
+        return upds.stream().filter(u -> u.getSize() > 0)
+            .min(Update::compare).orElse(new Update(upds.stream().max(Update::compare).get().getPrice(),0));
+    }
+    private static Update maximum(Set<Update> upds) {
+        return upds.stream().filter(u -> u.getSize()>0)
+            .max(Update::compare).orElse(new Update(upds.stream().max(Update::compare).get().getPrice(),0));
     }
 }
