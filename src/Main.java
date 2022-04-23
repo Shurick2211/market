@@ -21,8 +21,8 @@ public class Main {
                 String [] line=str.split(",");
                 switch (line[0]){
                     case "u":{
-                        long price = Long.parseLong(line[1]);
-                        long size = Long.parseLong(line[2]);
+                        int price = Integer.parseInt(line[1]);
+                        int size = Integer.parseInt(line[2]);
                         if(line[3].equals("bid")) {
                              upd(updatesBid,price,size);
                              limitOrder(updatesAsk,updatesBid,"bid", price, size);
@@ -50,8 +50,8 @@ public class Main {
                             }
                             case "size":{
                                 text = Stream.concat(updatesBid.stream(), updatesAsk.stream())
-                                    .filter(u -> u.getPrice() == Long.parseLong(line[2]))
-                                    .mapToLong(Update::getSize).sum() + "";
+                                    .filter(u -> u.getPrice() == Integer.parseInt(line[2]))
+                                    .findAny().orElse(new Update()).getSize() + "";
                                 if (!first) writer.append("\n");
                                 writer.write(text);
                                 break;
@@ -62,10 +62,10 @@ public class Main {
                     }
                     case "o":{
 
-                        long size=Long.parseLong(line[2]);
+                        int size=Integer.parseInt(line[2]);
 
                         if(line[1].equals("sell")){
-                            long sum = updatesBid.stream().mapToLong(Update::getSize).sum();
+                            int sum = updatesBid.stream().mapToInt(Update::getSize).sum();
                             if(size <= sum){
                                 order(updatesBid,"sell",size);
                             } else {
@@ -75,7 +75,7 @@ public class Main {
 
                         }
                         if(line[1].equals("buy")){
-                            long sum = updatesAsk.stream().mapToLong(Update::getSize).sum();
+                            int sum = updatesAsk.stream().mapToInt(Update::getSize).sum();
                             if(size <= sum){
                                  order(updatesAsk,"buy",size);
                             } else {
@@ -89,12 +89,13 @@ public class Main {
                 }
             }
             writer.flush();
-
-
+            updatesAsk.forEach(System.out::println);
+            System.out.println("++++++++++");
+            updatesBid.forEach(System.out::println);
 
     }
 
-    private static void order(Set<Update> upds, String name, long size){
+    private static void order(Set<Update> upds, String name, int size){
         do {
             Update update;
             if(name.equals("buy")) update = minimum(upds);
@@ -110,7 +111,7 @@ public class Main {
         }while(size > 0);
     }
 
-    private static void upd(Set<Update> upds, long price, long size) {
+    private static void upd(Set<Update> upds, int price, int size) {
         if (!upds.isEmpty()) {
          Update update = upds.stream().dropWhile(u->u.getPrice() != price).findAny()
              .orElse(new Update(price,0));
@@ -122,8 +123,8 @@ public class Main {
         }
     }
 
-    private static void limitOrder(Set<Update> upds, Set<Update> other,String updName, long price, long size) {
-        if ((!upds.isEmpty()) && upds.stream().mapToLong(Update::getSize).sum() > 0) {
+    private static void limitOrder(Set<Update> upds, Set<Update> other,String updName, int price, int size) {
+        if ((!upds.isEmpty()) && upds.stream().mapToInt(Update::getSize).sum() > 0) {
             if (updName.equals("bid")) {
                 Update update = minimum(upds);
                 if (price >= update.getPrice()) {
@@ -148,7 +149,7 @@ public class Main {
         }
     }
 
-    private static void spred(Set<Update> upds, Set<Update> other, long size, boolean revers) {
+    private static void spred(Set<Update> upds, Set<Update> other, int size, boolean revers) {
         if (revers) {
             order(other, "buy", size);
             order(upds, "sell", size);

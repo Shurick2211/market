@@ -1,8 +1,8 @@
 public class Update {
-    long price;
-    long size;
+    int price;
+    int size;
 
-    public Update(long price, long size) {
+    public Update(int price, int size) {
         this.price = price;
         this.size = size;
     }
@@ -10,19 +10,19 @@ public class Update {
     public Update() {
     }
 
-    public long getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 
-    public long getSize() {
+    public int getSize() {
         return size;
     }
 
-    public void setSize(long size) {
+    public void setSize(int size) {
         this.size = size;
     }
 
