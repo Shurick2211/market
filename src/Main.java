@@ -37,15 +37,23 @@ public class Main {
                         String text;
                         switch (line[1]){
                             case "best_bid":{
-                                text = maximum(updatesBid).toString();
-                                if (!first) writer.append("\n");
-                                writer.write(text);
+                                Update updateMax = maximum(updatesBid);
+                                if (updateMax.getSize() > 0) {
+                                    text = updateMax.toString();
+                                    if (!first) writer.append("\n");
+                                    writer.write(text);
+                                    first = false;
+                                } else first = true;
                                 break;
                             }
                             case "best_ask":{
-                                text = minimum(updatesAsk).toString();
-                                if (!first) writer.append("\n");
-                                writer.write(text);
+                                Update updateMin = minimum(updatesAsk);
+                                if(updateMin.getSize() > 0) {
+                                    text = updateMin.toString();
+                                    if (!first) writer.append("\n");
+                                    writer.write(text);
+                                    first = false;
+                                } else first = true;
                                 break;
                             }
                             case "size":{
@@ -54,10 +62,10 @@ public class Main {
                                     .findAny().orElse(new Update()).getSize() + "";
                                 if (!first) writer.append("\n");
                                 writer.write(text);
+                                first = false;
                                 break;
                             }
                         }
-                        first = false;
                         break;
                     }
                     case "o":{

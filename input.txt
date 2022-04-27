@@ -4,6 +4,7 @@ u,7,3,bid
 u,11,5,ask
 u,12,5,ask
 u,9,5,ask
+o,buy,13
 q,best_ask
 q,best_bid
 u,9,2,bid
