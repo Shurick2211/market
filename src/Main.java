@@ -25,10 +25,10 @@ public class Main {
                         int size = Integer.parseInt(line[2]);
                         if(line[3].equals("bid")) {
                              upd(updatesBid,price,size);
-                            // limitOrder(updatesAsk,updatesBid,"bid", price, size);
+                             limitOrder(updatesAsk,updatesBid,"bid", price, size);
                         } else  {
                              upd(updatesAsk,price,size);
-                            // limitOrder(updatesBid,updatesAsk,"ask", price,size);
+                             limitOrder(updatesBid,updatesAsk,"ask", price,size);
                         }
                         break;
                     }
@@ -123,7 +123,7 @@ public class Main {
             upds.add(new Update(price, size));
         }
     }
-/*
+
     private static void limitOrder(Set<Update> upds, Set<Update> other,String updName, int price, int size) {
         if ((!upds.isEmpty()) && upds.stream().mapToInt(Update::getSize).sum() > 0) {
             if (updName.equals("bid")) {
@@ -155,12 +155,13 @@ public class Main {
             order(other, "buy", size);
             order(upds, "sell", size);
         } else  {
-            order(other, "sell", size);
             order(upds, "buy", size);
+            order(other, "sell", size);
+
         }
 
     }
-*/
+
     private static Update minimum(Set<Update> upds) {
         return upds.stream().filter(u -> u.getSize() > 0)
             .min(Update::compare).orElse(new Update(upds.stream().max(Update::compare).get().getPrice(),0));
