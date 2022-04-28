@@ -7,9 +7,11 @@ o,buy,6
 q,best_ask
 q,best_bid
 o,sell,3
-u,9,2,bid
 q,best_bid
-u,13,1,ask
+u,9,2,bid
+q,size,12
+u,11,1,ask
 u,8,3,bid
 q,best_ask
 q,best_bid
+q,size,10

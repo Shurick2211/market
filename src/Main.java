@@ -4,13 +4,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Stream;
 
 public class Main {
     public static void main(String [] args) throws IOException {
         SortedSet<Update> updatesBid= new TreeSet<>();
         SortedSet<Update> updatesAsk= new TreeSet<>();
-
 
             BufferedReader fileReader =new BufferedReader(new FileReader("input.txt"));
             FileWriter writer = new FileWriter("output.txt", false);
@@ -53,9 +51,15 @@ public class Main {
                                 break;
                             }
                             case "size":{
-                                text = Stream.concat(updatesBid.stream(), updatesAsk.stream())
-                                    .filter(u -> u.getPrice() == Integer.parseInt(line[2]))
-                                    .findAny().orElse(new Update()).getSize() + "";
+                                int size;
+                                int price = Integer.parseInt(line[2]);
+                                if (price
+                                    < minimum(updatesBid).getPrice())
+                                    size = updatesBid.stream().dropWhile(u -> u.getPrice()!=price)
+                                        .findFirst().orElse(new Update(price,0)).getSize();
+                                else size = updatesAsk.stream().dropWhile(u -> u.getPrice()!=price)
+                                    .findFirst().orElse(new Update(price,0)).getSize();
+                                text = size + "";
                                 if (!first) writer.append("\n");
                                 writer.write(text);
                                 first = false;
@@ -76,11 +80,6 @@ public class Main {
                 }
             }
             writer.flush();
-            /*
-            updatesAsk.forEach(System.out::println);
-            System.out.println("++++++++++");
-            updatesBid.forEach(System.out::println);
-*/
     }
 
     private static void order(SortedSet<Update> upds, String name, int size){
@@ -97,6 +96,7 @@ public class Main {
                 size = Math.abs(size);
             }
         }while(size > 0);
+        if (update.getSize() == 0) upds.remove(update);
     }
 
 
