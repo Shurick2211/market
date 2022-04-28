@@ -1,4 +1,4 @@
-public class Update {
+public class Update implements Comparable<Update>{
     int price;
     int size;
 
@@ -36,5 +36,12 @@ public class Update {
         if(p1.getPrice() > p2.getPrice())
             return 1;
         return -1;
+    }
+
+
+
+    @Override
+    public int compareTo(Update update) {
+        return price - update.getPrice();
     }
 }

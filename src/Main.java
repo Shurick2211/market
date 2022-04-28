@@ -2,14 +2,14 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
 public class Main {
     public static void main(String [] args) throws IOException {
-        Set<Update> updatesBid=new HashSet<>();
-        Set<Update> updatesAsk=new HashSet<>();
+        SortedSet<Update> updatesBid= new TreeSet<>();
+        SortedSet<Update> updatesAsk= new TreeSet<>();
 
 
             BufferedReader fileReader =new BufferedReader(new FileReader("input.txt"));
@@ -24,9 +24,9 @@ public class Main {
                         int price = Integer.parseInt(line[1]);
                         int size = Integer.parseInt(line[2]);
                         if(line[3].equals("bid")) {
-                            orderLim(updatesAsk,updatesBid,price,size);
+                            updatesBid.add(new Update(price,size));
                         } else  {
-                            orderLim(updatesBid,updatesAsk,price,size);
+                            updatesAsk.add(new Update(price,size));
                         }
                         break;
                     }
@@ -36,20 +36,18 @@ public class Main {
                         switch (line[1]){
                             case "best_bid":{
                                 Update updateMax = maximum(updatesBid);
-                                if (updateMax.getSize() > 0) {
-                                    text = updateMax.toString();
+                                if (updateMax != null) {
                                     if (!first) writer.append("\n");
-                                    writer.write(text);
+                                    writer.write(updateMax.toString());
                                     first = false;
                                 } else first = true;
                                 break;
                             }
                             case "best_ask":{
                                 Update updateMin = minimum(updatesAsk);
-                                if(updateMin.getSize() > 0) {
-                                    text = updateMin.toString();
+                                if(updateMin != null) {
                                     if (!first) writer.append("\n");
-                                    writer.write(text);
+                                    writer.write(updateMin.toString());
                                     first = false;
                                 } else first = true;
                                 break;
@@ -67,29 +65,12 @@ public class Main {
                         break;
                     }
                     case "o":{
-
                         int size=Integer.parseInt(line[2]);
-
                         if(line[1].equals("sell")){
-                            int sum = updatesBid.stream().mapToInt(Update::getSize).sum();
-                            if(size <= sum){
                                 order(updatesBid,"sell",size);
-                            } else {
-                                upd(updatesAsk,minimum(updatesBid).getPrice(),size-sum);
-                                order(updatesBid,"sell",sum);
+                        } else {
+                                order(updatesAsk,"buy",size);
                             }
-
-                        }
-                        if(line[1].equals("buy")){
-                            int sum = updatesAsk.stream().mapToInt(Update::getSize).sum();
-                            if(size <= sum){
-                                 order(updatesAsk,"buy",size);
-                            } else {
-                                upd(updatesBid,maximum(updatesAsk).getPrice(),size-sum);
-                                order(updatesAsk,"buy",sum);
-                            }
-                        }
-
                         break;
                     }
                 }
@@ -102,7 +83,7 @@ public class Main {
 */
     }
 
-    private static void order(Set<Update> upds, String name, int size){
+    private static void order(SortedSet<Update> upds, String name, int size){
         Update update;
         do {
             if(name.equals("buy")) update = minimum(upds);
@@ -112,43 +93,17 @@ public class Main {
                 update.setSize(size);
                 size = 0;
             } else {
-                update.setSize(0);
+                upds.remove(update);
                 size = Math.abs(size);
             }
         }while(size > 0);
     }
 
-    private static void upd(Set<Update> upds, int price, int size) {
-        if (!upds.isEmpty()) {
-         Update update = upds.stream().dropWhile(u->u.getPrice() != price).findAny()
-             .orElse(new Update(price,0));
-            update.setSize(update.getSize()+size);
-            upds.add(update);
-        }
-        else {
-            upds.add(new Update(price, size));
-        }
-    }
 
-    private static void orderLim(Set<Update> upds, Set<Update> other , int price, int size){
-        Update update = upds.stream().filter(u -> u.getPrice() == price).findFirst().orElse(null);
-        if (update == null) upd(other,price,size);
-        else
-            if ((size = update.getSize() - size) >= 0) {
-                update.setSize(size);
-            } else {
-                update.setSize(0);
-                size = Math.abs(size);
-                upd(other,price,size);
-            }
+    private static Update minimum(SortedSet<Update> upds) {
+        return upds.first();
     }
-
-    private static Update minimum(Set<Update> upds) {
-        return upds.stream().filter(u -> u.getSize() > 0)
-            .min(Update::compare).orElse(new Update(upds.stream().max(Update::compare).get().getPrice(),0));
-    }
-    private static Update maximum(Set<Update> upds) {
-        return upds.stream().filter(u -> u.getSize()>0)
-            .max(Update::compare).orElse(new Update(upds.stream().max(Update::compare).get().getPrice(),0));
+    private static Update maximum(SortedSet<Update> upds) {
+        return upds.last();
     }
 }
