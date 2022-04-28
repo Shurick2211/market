@@ -24,11 +24,9 @@ public class Main {
                         int price = Integer.parseInt(line[1]);
                         int size = Integer.parseInt(line[2]);
                         if(line[3].equals("bid")) {
-                             upd(updatesBid,price,size);
-                             limitOrder(updatesAsk,updatesBid,"bid", price, size);
+                            orderLim(updatesAsk,updatesBid,price,size);
                         } else  {
-                             upd(updatesAsk,price,size);
-                             limitOrder(updatesBid,updatesAsk,"ask", price,size);
+                            orderLim(updatesBid,updatesAsk,price,size);
                         }
                         break;
                     }
@@ -132,42 +130,17 @@ public class Main {
         }
     }
 
-    private static void limitOrder(Set<Update> upds, Set<Update> other,String updName, int price, int size) {
-        if ((!upds.isEmpty()) && upds.stream().mapToInt(Update::getSize).sum() > 0) {
-            if (updName.equals("bid")) {
-                Update update = minimum(upds);
-                if (price >= update.getPrice()) {
-                    if (update.getSize() >= size) {
-                        spred(upds, other, size, false);
-                    } else {
-                        spred(upds, other, update.getSize(), false);
-                        upd(other, price, update.getSize());
-                    }
-                }
+    private static void orderLim(Set<Update> upds, Set<Update> other , int price, int size){
+        Update update = upds.stream().filter(u -> u.getPrice() == price).findFirst().orElse(null);
+        if (update == null) upd(other,price,size);
+        else
+            if ((size = update.getSize() - size) >= 0) {
+                update.setSize(size);
             } else {
-                Update update = maximum(upds);
-                if (price <= update.getPrice()) {
-                    if (update.getSize() >= size) {
-                        spred(upds, other, size, true);
-                    } else {
-                        spred(upds, other, update.getSize(), true);
-                        upd(other,price,update.getSize());
-                    }
-                }
+                update.setSize(0);
+                size = Math.abs(size);
+                upd(other,price,size);
             }
-        }
-    }
-
-    private static void spred(Set<Update> upds, Set<Update> other, int size, boolean revers) {
-        if (revers) {
-            order(other, "buy", size);
-            order(upds, "sell", size);
-        } else  {
-            order(upds, "buy", size);
-            order(other, "sell", size);
-
-        }
-
     }
 
     private static Update minimum(Set<Update> upds) {
