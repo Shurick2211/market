@@ -54,7 +54,7 @@ public class Main {
                                 int size;
                                 int price = Integer.parseInt(line[2]);
                                 if (price
-                                    <= minimum(updatesBid).getPrice())
+                                    <= maximum(updatesBid).getPrice())
                                     size = updatesBid.stream().dropWhile(u -> u.getPrice()!=price)
                                         .findFirst().orElse(new Update(price,0)).getSize();
                                 else size = updatesAsk.stream().dropWhile(u -> u.getPrice()!=price)
