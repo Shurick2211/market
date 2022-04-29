@@ -21,7 +21,6 @@ public class Main {
                     case "u":{
                         int price = Integer.parseInt(line[1]);
                         int size = Integer.parseInt(line[2]);
-
                         if(line[3].equals("bid")) {
                                 updatesBid.put(price,size);
                         } else  {
@@ -33,12 +32,18 @@ public class Main {
                     case "q":{
                         switch (line[1]){
                             case "best_bid":{
+                                while (updatesBid.get(updatesBid.lastKey()) == 0) {
+                                    updatesBid.remove(updatesBid.lastKey());
+                                }
                                 Integer updateMax = updatesBid.lastKey();
                                 if (!first) writer.append("\n");
                                 writer.write(updateMax.toString()+","+updatesBid.get(updateMax));
                                 break;
                             }
                             case "best_ask":{
+                                while (updatesAsk.get(updatesAsk.firstKey()) == 0) {
+                                    updatesAsk.remove(updatesAsk.firstKey());
+                                }
                                 Integer updateMin = updatesAsk.firstKey();
                                 if (!first) writer.append("\n");
                                 writer.write(updateMin.toString()+","+updatesAsk.get(updateMin));
