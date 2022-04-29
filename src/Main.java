@@ -23,11 +23,9 @@ public class Main {
                         int size = Integer.parseInt(line[2]);
 
                         if(line[3].equals("bid")) {
-                            if (size == 0) updatesBid.remove(price,size);
-                            else updatesBid.put(price,size);
+                                updatesBid.put(price,size);
                         } else  {
-                            if (size == 0) updatesAsk.remove(price,size);
-                            else updatesAsk.put(price,size);
+                                updatesAsk.put(price,size);
                         }
                         break;
                     }
@@ -35,15 +33,15 @@ public class Main {
                     case "q":{
                         switch (line[1]){
                             case "best_bid":{
-                                int updateMax = updatesBid.lastKey();
+                                Integer updateMax = updatesBid.lastKey();
                                 if (!first) writer.append("\n");
-                                writer.write(updateMax+","+updatesBid.get(updateMax));
+                                writer.write(updateMax.toString()+","+updatesBid.get(updateMax));
                                 break;
                             }
                             case "best_ask":{
-                                int updateMin = updatesAsk.firstKey();
+                                Integer updateMin = updatesAsk.firstKey();
                                 if (!first) writer.append("\n");
-                                writer.write(updateMin+","+updatesAsk.get(updateMin));
+                                writer.write(updateMin.toString()+","+updatesAsk.get(updateMin));
                                 break;
                             }
                             case "size":{
@@ -69,7 +67,7 @@ public class Main {
                     case "o":{
                         int size=Integer.parseInt(line[2]);
                         if(line[1].equals("sell")){
-                                sell(updatesBid,size);
+                               sell(updatesBid,size);
                         } else {
                                buy(updatesAsk,size);
                             }
