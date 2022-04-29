@@ -2,13 +2,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class Main {
     public static void main(String [] args) throws IOException {
-        SortedSet<Update> updatesBid= new TreeSet<>();
-        SortedSet<Update> updatesAsk= new TreeSet<>();
+        SortedMap<Integer, Integer> updatesBid = new TreeMap<>();
+        SortedMap<Integer, Integer> updatesAsk = new TreeMap<>();
 
             BufferedReader fileReader =new BufferedReader(new FileReader("input.txt"));
             FileWriter writer = new FileWriter("output.txt", false);
@@ -23,11 +23,11 @@ public class Main {
                         int size = Integer.parseInt(line[2]);
 
                         if(line[3].equals("bid")) {
-                            if (size == 0) updatesBid.remove(new Update(price,size));
-                            else updatesBid.add(new Update(price,size));
+                            if (size == 0) updatesBid.remove(price,size);
+                            else updatesBid.put(price,size);
                         } else  {
-                            if (size == 0) updatesAsk.remove(new Update(price,size));
-                            else updatesAsk.add(new Update(price,size));
+                            if (size == 0) updatesAsk.remove(price,size);
+                            else updatesAsk.put(price,size);
                         }
                         break;
                     }
@@ -35,26 +35,29 @@ public class Main {
                     case "q":{
                         switch (line[1]){
                             case "best_bid":{
-                                Update updateMax = updatesBid.last();
+                                int updateMax = updatesBid.lastKey();
                                 if (!first) writer.append("\n");
-                                writer.write(updateMax.toString());
+                                writer.write(updateMax+","+updatesBid.get(updateMax));
                                 break;
                             }
                             case "best_ask":{
-                                Update updateMin = updatesAsk.first();
+                                int updateMin = updatesAsk.firstKey();
                                 if (!first) writer.append("\n");
-                                writer.write(updateMin.toString());
+                                writer.write(updateMin+","+updatesAsk.get(updateMin));
                                 break;
                             }
                             case "size":{
-                                int size;
+                                int size ;
                                 int price = Integer.parseInt(line[2]);
-                                if (price
-                                    <= updatesBid.last().getPrice())
-                                    size = updatesBid.stream().dropWhile(u -> u.getPrice()!=price)
-                                        .findFirst().orElse(new Update(price,0)).getSize();
-                                else size = updatesAsk.stream().dropWhile(u -> u.getPrice()!=price)
-                                    .findFirst().orElse(new Update(price,0)).getSize();
+
+                                    if (price <= updatesBid.lastKey())
+                                       if (updatesBid.get(price) != null)
+                                           size = updatesBid.get(price);
+                                       else size = 0;
+                                    else
+                                       if (updatesAsk.get(price) != null)
+                                            size = updatesAsk.get(price);
+                                       else size = 0;
                                 if (!first) writer.append("\n");
                                 writer.write(size + "");
                                 break;
@@ -66,9 +69,9 @@ public class Main {
                     case "o":{
                         int size=Integer.parseInt(line[2]);
                         if(line[1].equals("sell")){
-                                order(updatesBid,updatesBid.last(),size,true);
+                                sell(updatesBid,size);
                         } else {
-                                order(updatesAsk,updatesAsk.first(),size, false);
+                               buy(updatesAsk,size);
                             }
                         break;
                     }
@@ -77,31 +80,28 @@ public class Main {
             writer.flush();
     }
 
-    private static void order(SortedSet<Update> upds, Update update, int size, boolean isSell){
-       int upSize =  update.getSize();
-       while (upSize<= size) {
-           size -= upSize;
-           upds.remove(update);
-           if(isSell) update = upds.last();
-           else update = upds.first();
-           upSize = update.getSize();
-       }
-       update.setSize(upSize-size);
+    public static void sell(SortedMap<Integer,Integer> bid,int size){
+        int bestPrice = bid.lastKey();
+        int bestPriceSize = bid.get(bestPrice);
+        while(bestPriceSize <= size){
+            size -= bestPriceSize;
+            bid.remove(bestPrice);
+            bestPrice = bid.lastKey();
+            bestPriceSize = bid.get(bestPrice);
+        }
+        bid.put(bestPrice, bid.get(bestPrice) - size);
+    }
 
-
-/*
-        do {
-            if ((size = update.getSize() - size) >= 0) {
-                update.setSize(size);
-                size = 0;
-            } else {
-                upds.remove(update);
-                size = Math.abs(size);
-                if(isSell) update = upds.last();
-                        else update = upds.first();
-            }
-        }while(size > 0);
-        if (update.getSize() == 0) upds.remove(update);*/
+    public static void buy(SortedMap<Integer,Integer> ask,int size){
+        int bestPrice = ask.firstKey();
+        int bestPriceSize = ask.get(bestPrice);
+        while(bestPriceSize <= size){
+            size -= bestPriceSize;
+            ask.remove(bestPrice);
+            bestPrice = ask.firstKey();
+            bestPriceSize = ask.get(bestPrice);
+        }
+        ask.put(bestPrice, ask.get(bestPrice) - size);
     }
 
 }
