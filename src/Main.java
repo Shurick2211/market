@@ -21,16 +21,18 @@ public class Main {
                     case "u":{
                         int price = Integer.parseInt(line[1]);
                         int size = Integer.parseInt(line[2]);
+
                         if(line[3].equals("bid")) {
-                            updatesBid.add(new Update(price,size));
+                            if (size == 0) updatesBid.remove(new Update(price,size));
+                            else updatesBid.add(new Update(price,size));
                         } else  {
-                            updatesAsk.add(new Update(price,size));
+                            if (size == 0) updatesAsk.remove(new Update(price,size));
+                            else updatesAsk.add(new Update(price,size));
                         }
                         break;
                     }
 
                     case "q":{
-                        String text;
                         switch (line[1]){
                             case "best_bid":{
                                 Update updateMax = updatesBid.last();
@@ -53,9 +55,8 @@ public class Main {
                                         .findFirst().orElse(new Update(price,0)).getSize();
                                 else size = updatesAsk.stream().dropWhile(u -> u.getPrice()!=price)
                                     .findFirst().orElse(new Update(price,0)).getSize();
-                                text = size + "";
                                 if (!first) writer.append("\n");
-                                writer.write(text);
+                                writer.write(size + "");
                                 break;
                             }
                         }
