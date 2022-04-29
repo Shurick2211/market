@@ -78,6 +78,18 @@ public class Main {
     }
 
     private static void order(SortedSet<Update> upds, Update update, int size, boolean isSell){
+       int upSize =  update.getSize();
+       while (upSize<= size) {
+           size -= upSize;
+           upds.remove(update);
+           if(isSell) update = upds.last();
+           else update = upds.first();
+           upSize = update.getSize();
+       }
+       update.setSize(upSize-size);
+
+
+/*
         do {
             if ((size = update.getSize() - size) >= 0) {
                 update.setSize(size);
@@ -89,7 +101,7 @@ public class Main {
                         else update = upds.first();
             }
         }while(size > 0);
-        if (update.getSize() == 0) upds.remove(update);
+        if (update.getSize() == 0) upds.remove(update);*/
     }
 
 }
