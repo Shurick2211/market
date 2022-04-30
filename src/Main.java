@@ -32,33 +32,41 @@ public class Main {
                     case "q":{
                         switch (line[1]){
                             case "best_bid":{
-                                while (updatesBid.get(updatesBid.lastKey()) == 0) {
-                                    updatesBid.remove(updatesBid.lastKey());
+                                if (!updatesBid.isEmpty()) {
+                                    while (updatesBid.get(updatesBid.lastKey()) == 0) {
+                                        updatesBid.remove(updatesBid.lastKey());
+                                    }
+                                    Integer updateMax = updatesBid.lastKey();
+                                    if (! first)
+                                        writer.append("\n");
+                                    writer.write(
+                                        updateMax.toString() + "," + updatesBid.get(updateMax));
                                 }
-                                Integer updateMax = updatesBid.lastKey();
-                                if (!first) writer.append("\n");
-                                writer.write(updateMax.toString()+","+updatesBid.get(updateMax));
                                 break;
                             }
                             case "best_ask":{
-                                while (updatesAsk.get(updatesAsk.firstKey()) == 0) {
-                                    updatesAsk.remove(updatesAsk.firstKey());
+                                if (!updatesAsk.isEmpty()) {
+                                    while (updatesAsk.get(updatesAsk.firstKey()) == 0) {
+                                        updatesAsk.remove(updatesAsk.firstKey());
+                                    }
+                                    Integer updateMin = updatesAsk.firstKey();
+                                    if (! first)
+                                        writer.append("\n");
+                                    writer.write(
+                                        updateMin.toString() + "," + updatesAsk.get(updateMin));
+                                    break;
                                 }
-                                Integer updateMin = updatesAsk.firstKey();
-                                if (!first) writer.append("\n");
-                                writer.write(updateMin.toString()+","+updatesAsk.get(updateMin));
-                                break;
                             }
                             case "size":{
                                 int size ;
                                 int price = Integer.parseInt(line[2]);
 
-                                    if (price <= updatesBid.lastKey())
+                                    if (!updatesBid.isEmpty() && price <= updatesBid.lastKey())
                                        if (updatesBid.get(price) != null)
                                            size = updatesBid.get(price);
                                        else size = 0;
                                     else
-                                       if (updatesAsk.get(price) != null)
+                                       if (!updatesAsk.isEmpty() && updatesAsk.get(price) != null)
                                             size = updatesAsk.get(price);
                                        else size = 0;
                                 if (!first) writer.append("\n");
@@ -89,8 +97,10 @@ public class Main {
         while(bestPriceSize <= size){
             size -= bestPriceSize;
             bid.remove(bestPrice);
-            bestPrice = bid.lastKey();
-            bestPriceSize = bid.get(bestPrice);
+            if (!bid.isEmpty()) {
+                bestPrice = bid.lastKey();
+                bestPriceSize = bid.get(bestPrice);
+            } else return;
         }
         bid.put(bestPrice, bid.get(bestPrice) - size);
     }
@@ -101,8 +111,10 @@ public class Main {
         while(bestPriceSize <= size){
             size -= bestPriceSize;
             ask.remove(bestPrice);
-            bestPrice = ask.firstKey();
-            bestPriceSize = ask.get(bestPrice);
+            if (!ask.isEmpty()) {
+                bestPrice = ask.firstKey();
+                bestPriceSize = ask.get(bestPrice);
+            } else return;
         }
         ask.put(bestPrice, ask.get(bestPrice) - size);
     }
