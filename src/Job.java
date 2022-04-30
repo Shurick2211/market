@@ -8,6 +8,7 @@ import java.util.TreeMap;
 public class Job {
   private final SortedMap<Integer, Integer> updatesBid = new TreeMap<>();
   private final SortedMap<Integer, Integer> updatesAsk = new TreeMap<>();
+  private String [] line;
 
   public void run() throws IOException {
     final BufferedReader fileReader =new BufferedReader(new FileReader("input.txt"));
@@ -16,10 +17,10 @@ public class Job {
     String str;
 
     while((str=fileReader.readLine())!=null){
-      String [] line=str.split(",");
+      line=str.split(",");
       if (line[0].equals("q")) {
         if (line.length == 2) {
-          int [] wr = query(line[1]);
+          int [] wr = query();
           writer.write(wr[0]+","+wr[1]);
           writer.append("\n");
         } else {
@@ -28,15 +29,15 @@ public class Job {
         }
 
       } else
-      if (line[0].equals("u")) update(line);
-      else  orders(line);
+      if (line[0].equals("u")) update();
+      else  orders();
     }
     writer.flush();
   }
 
 
-  private int[] query(String line) {
-    if (line.equals("best_bid")) {
+  private int[] query() {
+    if (line[1].equals("best_bid")) {
         if (! updatesBid.isEmpty()) {
             while (updatesBid.get(updatesBid.lastKey()) == 0)
             updatesBid.remove(updatesBid.lastKey());
@@ -71,7 +72,7 @@ public class Job {
     return 0;
   }
 
-  private void update(String[] line) {
+  private void update() {
     final int price = Integer.parseInt(line[1]);
     final int size = Integer.parseInt(line[2]);
       if(line[3].equals("bid")) {
@@ -81,7 +82,7 @@ public class Job {
       }
   }
 
-  private void orders(String [] line) {
+  private void orders() {
       int size=Integer.parseInt(line[2]);
       if(line[1].equals("sell")){
         int bestPrice = updatesBid.lastKey();
