@@ -40,7 +40,7 @@ public class Job {
 
   private static int[] query() {
     if (line[1].equals("best_bid")) {
-        if (! updatesBid.isEmpty() && ) {
+        if (! updatesBid.isEmpty() ) {
             while (updatesBid.get(updatesBid.lastKey()) == 0)
             updatesBid.remove(updatesBid.lastKey());
 
