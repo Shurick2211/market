@@ -31,16 +31,16 @@ public class Job {
       } else
       if (line[0].equals("u")) update();
       else  orders();
-
-      System.gc();
     }
+    fileReader.close();
     writer.flush();
+    writer.close();
   }
 
 
   private static int[] query() {
     if (line[1].equals("best_bid")) {
-        if (! updatesBid.isEmpty()) {
+        if (! updatesBid.isEmpty() && ) {
             while (updatesBid.get(updatesBid.lastKey()) == 0)
             updatesBid.remove(updatesBid.lastKey());
 
@@ -75,8 +75,9 @@ public class Job {
   }
 
   private static void update() {
-    final int price = Integer.parseInt(line[1]);
-    final int size = Integer.parseInt(line[2]);
+    final Integer price = Integer.parseInt(line[1]);
+    final Integer size = Integer.parseInt(line[2]);
+    if (size != 0 || size != null)
       if(line[3].equals("bid")) {
         updatesBid.put(price,size);
       } else  {
