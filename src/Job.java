@@ -19,12 +19,12 @@ public class Job {
     while((str=fileReader.readLine())!=null){
       line=str.split(",");
       if (line[0].equals("q")) {
-        if (line.length == 2) {
-          int [] wr = query();
-          writer.write(wr[0]+","+wr[1]);
+        if (line[1].equals("size")) {
+          writer.write(size(Integer.parseInt(line[2]))+"");
           writer.append("\n");
         } else {
-          writer.write(size(Integer.parseInt(line[2]))+"");
+          int [] wr = query();
+          writer.write(wr[0]+","+wr[1]);
           writer.append("\n");
         }
 
@@ -34,31 +34,27 @@ public class Job {
     }
     fileReader.close();
     writer.flush();
+
   }
 
 
   private int[] query() {
     if (line[1].equals("best_bid")) {
-        if (! updatesBid.isEmpty() ) {
             while (updatesBid.get(updatesBid.lastKey()) == 0)
             updatesBid.remove(updatesBid.lastKey());
 
           final int updateMax = updatesBid.lastKey();
           return new int[] {updateMax, updatesBid.get(updateMax)};
-        }
       } else
 
      {
-        if (! updatesAsk.isEmpty()) {
             while (updatesAsk.get(updatesAsk.firstKey()) == 0)
             updatesAsk.remove(updatesAsk.firstKey());
 
           final Integer updateMin = updatesAsk.firstKey();
           return new int[] {updateMin,updatesAsk.get(updateMin)};
-        }
       }
 
-    return null;
   }
 
   private int size(int price){
