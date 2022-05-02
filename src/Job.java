@@ -45,26 +45,24 @@ public class Job {
 
           final int updateMax = updatesBid.lastKey();
           return new int[] {updateMax, updatesBid.get(updateMax)};
-      } else
-
-     {
+      } else  {
             while (updatesAsk.get(updatesAsk.firstKey()) == 0)
             updatesAsk.remove(updatesAsk.firstKey());
 
-          final Integer updateMin = updatesAsk.firstKey();
+          final int updateMin = updatesAsk.firstKey();
           return new int[] {updateMin,updatesAsk.get(updateMin)};
       }
 
   }
 
-  private int size(int price){
-    final Integer priceBid = updatesBid.get(price);
-    if (priceBid != null) {
-      return priceBid;
-    }
-    final Integer priceAsk = updatesAsk.get(price);
-    if (priceAsk != null) {
-      return priceAsk;
+  private int size(Integer price){
+    Integer prices;
+    if ((prices = updatesBid.get(price)) != null) {
+      return prices;
+    } else
+
+    if ((prices = updatesAsk.get(price)) != null) {
+      return prices;
     }
     return 0;
   }
@@ -72,7 +70,6 @@ public class Job {
   private void update() {
     final Integer price = Integer.parseInt(line[1]);
     final Integer size = Integer.parseInt(line[2]);
-    if (size != 0 || size != null)
       if(line[3].equals("bid")) {
         updatesBid.put(price,size);
       } else  {
