@@ -21,8 +21,6 @@ public class Job {
   public  void run() throws IOException {
     final BufferedReader fileReader =new BufferedReader(new FileReader("input.txt"));
     final FileWriter writer = new FileWriter("output.txt", false);
-
-
     String str;
 
     while((str=fileReader.readLine())!=null){
@@ -49,14 +47,14 @@ public class Job {
 
   private int[] query() {
     if (line[1].equals(BEST_BID)) {
-            while (updatesBid.get(updatesBid.lastKey()) == 0)
-            updatesBid.remove(updatesBid.lastKey());
+           // while (updatesBid.get(updatesBid.lastKey()) == 0)
+           // updatesBid.remove(updatesBid.lastKey());
 
           final int updateMax = updatesBid.lastKey();
           return new int[] {updateMax, updatesBid.get(updateMax)};
       } else  {
-            while (updatesAsk.get(updatesAsk.firstKey()) == 0)
-            updatesAsk.remove(updatesAsk.firstKey());
+          //  while (updatesAsk.get(updatesAsk.firstKey()) == 0)
+          //  updatesAsk.remove(updatesAsk.firstKey());
 
           final int updateMin = updatesAsk.firstKey();
           return new int[] {updateMin,updatesAsk.get(updateMin)};
@@ -66,21 +64,23 @@ public class Job {
 
   private int size(int price){
     Integer prices;
-    if ((prices = updatesBid.get(price)) != null) {
+    if ((prices = updatesAsk.get(price)) != null) {
       return prices;
     }
-    if ((prices = updatesAsk.get(price)) != null) {
+    if ((prices = updatesBid.get(price)) != null) {
       return prices;
     }
     return 0;
   }
 
   private void update() {
-    final Integer price = Integer.parseInt(line[1]);
-    final Integer size = Integer.parseInt(line[2]);
+    final int price = Integer.parseInt(line[1]);
+    final int size = Integer.parseInt(line[2]);
       if(line[3].equals(BID)) {
-        updatesBid.put(price,size);
+        if (size == 0 ) updatesBid.remove(price);
+        else updatesBid.put(price,size);
       } else  {
+        if (size == 0) updatesAsk.remove(price);
         updatesAsk.put(price,size);
       }
   }
@@ -108,7 +108,6 @@ public class Job {
         }
         updatesAsk.put(bestPrice, updatesAsk.get(bestPrice) - size);
       }
-
   }
 
 }
