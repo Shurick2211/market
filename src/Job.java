@@ -34,7 +34,6 @@ public class Job {
     }
     fileReader.close();
     writer.flush();
-    writer.close();
   }
 
 
