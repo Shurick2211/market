@@ -9,27 +9,36 @@ public class Job {
   private final SortedMap<Integer, Integer> updatesBid = new TreeMap<>();
   private final SortedMap<Integer, Integer> updatesAsk = new TreeMap<>();
   private String [] line;
+  final String BEST_BID = "best_bid";
+  final String BID = "bid";
+  final String SELL = "sell";
+  final String SPLIT = ",";
+  final String Q = "q";
+  final String SIZE = "size";
+  final String END_STRING = "\n";
+  final String U = "u";
 
   public  void run() throws IOException {
     final BufferedReader fileReader =new BufferedReader(new FileReader("input.txt"));
     final FileWriter writer = new FileWriter("output.txt", false);
 
+
     String str;
 
     while((str=fileReader.readLine())!=null){
-      line=str.split(",");
-      if (line[0].equals("q")) {
-        if (line[1].equals("size")) {
+      line=str.split(SPLIT);
+      if (line[0].equals(Q)) {
+        if (line[1].equals(SIZE)) {
           writer.write(size(Integer.parseInt(line[2]))+"");
-          writer.append("\n");
+          writer.append(END_STRING);
         } else {
           int [] wr = query();
-          writer.write(wr[0]+","+wr[1]);
-          writer.append("\n");
+          writer.write(wr[0]+SPLIT+wr[1]);
+          writer.append(END_STRING);
         }
 
       } else
-      if (line[0].equals("u")) update();
+      if (line[0].equals(U)) update();
       else  orders();
     }
     fileReader.close();
@@ -39,7 +48,7 @@ public class Job {
 
 
   private int[] query() {
-    if (line[1].equals("best_bid")) {
+    if (line[1].equals(BEST_BID)) {
             while (updatesBid.get(updatesBid.lastKey()) == 0)
             updatesBid.remove(updatesBid.lastKey());
 
@@ -55,12 +64,11 @@ public class Job {
 
   }
 
-  private int size(Integer price){
+  private int size(int price){
     Integer prices;
     if ((prices = updatesBid.get(price)) != null) {
       return prices;
-    } else
-
+    }
     if ((prices = updatesAsk.get(price)) != null) {
       return prices;
     }
@@ -70,7 +78,7 @@ public class Job {
   private void update() {
     final Integer price = Integer.parseInt(line[1]);
     final Integer size = Integer.parseInt(line[2]);
-      if(line[3].equals("bid")) {
+      if(line[3].equals(BID)) {
         updatesBid.put(price,size);
       } else  {
         updatesAsk.put(price,size);
@@ -79,7 +87,7 @@ public class Job {
 
   private void orders() {
       int size=Integer.parseInt(line[2]);
-      if(line[1].equals("sell")){
+      if(line[1].equals(SELL)){
         int bestPrice = updatesBid.lastKey();
         int bestPriceSize = updatesBid.get(bestPrice);
         while(bestPriceSize <= size){
