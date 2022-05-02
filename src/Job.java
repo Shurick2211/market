@@ -47,15 +47,9 @@ public class Job {
 
   private int[] query() {
     if (line[1].equals(BEST_BID)) {
-           // while (updatesBid.get(updatesBid.lastKey()) == 0)
-           // updatesBid.remove(updatesBid.lastKey());
-
           final int updateMax = updatesBid.lastKey();
           return new int[] {updateMax, updatesBid.get(updateMax)};
       } else  {
-          //  while (updatesAsk.get(updatesAsk.firstKey()) == 0)
-          //  updatesAsk.remove(updatesAsk.firstKey());
-
           final int updateMin = updatesAsk.firstKey();
           return new int[] {updateMin,updatesAsk.get(updateMin)};
       }
@@ -81,7 +75,7 @@ public class Job {
         else updatesBid.put(price,size);
       } else  {
         if (size == 0) updatesAsk.remove(price);
-        updatesAsk.put(price,size);
+        else updatesAsk.put(price,size);
       }
   }
 
